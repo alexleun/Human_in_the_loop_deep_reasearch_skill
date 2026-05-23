@@ -2,14 +2,14 @@
 
 A structured, artifact-driven AI research skill built specifically to drop directly into the `skills/` directory of **OpenCode** and **OpenSpec** environments. 
 
-Unlike mainstream autonomous search engines, this skill enforces a transparent, step-by-step workflow designed not just to generate a report, but to **help the human operator learn, grow, and develop their own skills during the process.**
+Unlike mainstream autonomous search engines, this skill enforces a transparent, step-by-step workflow designed not just to blindly automate a report, but to **help the human operator learn, grow, and develop their own skills during the process.**
 
 ---
 
 ## 🧠 The Philosophy: Co-Learning over Blind Automation
 
 In a world where commercial tools (like OpenAI Deep Research or Perplexity Pro) try to automate everything away, humans are left in the dark. 
-* **The Problem with Black Boxes:** If an AI does 100% of the work in secret and just hands you a finished report, **the human learns nothing.** A static report cannot help an independent developer truly understand how to build or evolve their project. 
+* **The Problem with Black Boxes:** If an AI does 100% of the work in secret and just hands you a finished file, **the human learns nothing.** A static report cannot help an independent developer truly understand how to build or evolve their project. 
 * **The Solution (Co-Learning):** This skill treats research as a collaborative partnership. By forcing human-gated checkpoints, you are forced to review the data, analyze the gaps, and think critically. **As the AI conducts research, you develop your own skills alongside it.**
 
 ---
@@ -32,55 +32,52 @@ This is a specialized architectural skill, not a general-purpose chat interface.
 
 ---
 
-## 🔄 The Suspected Research Workflow
+## 🔄 The 6-Phase Research Workflow
 
-This skill strictly executes research across defined lifecycle phases to ensure alignment and active human engagement. 
+This skill strictly executes research across six distinct, state-tracked lifecycle phases to maintain deep context alignment, optimize token efficiency, and guarantee human gatekeeping before deep execution loops begin.
 
 ### 📊 Workflow Topology
 
 ```mermaid
 graph TD
-    A[Start: Human Prompt/Query] --> B[Phase 1: Agent Drafts proposal.md]
-    B --> C[Phase 2: Generate Target Outline Grid]
-    C --> D{🛑 OpenSpec Human Gate}
+    A[Start: Research Prompt] --> B[Phase 1: Query Deconstruction]
+    B --> C[Phase 2: Strategy Proposal]
+    C --> D[Phase 3: Schema & Spec Mapping]
+    D --> E{🛑 OpenSpec Human Gate}
     
-    D -- "Reject/Fix Path" --> C
-    D -- "Approve & Learn" --> E[Phase 3: Deep Investigation Loops]
+    E -- "Refine/Adjust Manually" --> D
+    E -- "Approve & Learn" --> F[Phase 4: Targeted Web Discovery]
     
-    E --> F[OpenCode Tools: Search, Fetch, Parse]
-    F --> G[Continuous Telemetry Watch]
-    G --> H[Phase 4: Artifact Synthesis]
-    H --> I[Final Output: report.md]
+    F --> G[Phase 5: Notebook-Driven Data Analysis]
+    G --> H[Phase 6: Artifact Synthesis]
+    H --> I[Final Output: index.html website]
     
-    style D fill:#ff9999,stroke:#333,stroke-width:2px;
+    style E fill:#ff9999,stroke:#333,stroke-width:2px;
     style I fill:#99ff99,stroke:#333,stroke-width:2px;
 
 ```
-### 📦 Artifact Matrix Data Flow
+### 📦 Artifact Architecture & Data State Flow
 ```text
-[ Initial Query ] 
-       │
-       ▼
- ┌───────────┐      ┌──────────────┐      ┌────────────────┐      ┌───────────┐
- │proposal.md│ ───> │   specs/     │ ───> │ /research-deep │ ───> │ report.md │
- └───────────┘      └──────────────└      └────────────────┘      └───────────┘
- (The Strategy)      (The Schema)          (Parallel Loops)        (Synthesis)
-                          │
-                    [ HUMAN INTERACTION ]
-                    (Review & Upgrade Skill)
+ [ User Query ] 
+        │
+        ▼
+ ┌──────────────┐      ┌──────────────┐      ┌─────────────────┐      ┌────────────────┐
+ │  proposal.md │ ───> │    specs/    │ ───> │ notebooks/*.ipynb│ ───> │  /dist/        │
+ └──────────────┘      └──────────────┘      └─────────────────┘      └────────────────┘
+  (The Strategy)        (The Schema)          (Trackable Labs)         (index.html Web)
+                               │                      ▲                       ▲
+                               ▼                      │                       │
+                     [ HUMAN INTERACTION ] ───────────┴───────────────────────┘
+                    (Verify & Learn Schema)       (Manual adjustments anytime)
 
 ```
- 1. **The Proposal (proposal.md):** The agent takes your initial query and breaks down a high-level research plan, defining the knowledge gaps it needs to fill.
- 2. **The Outline Grid (specs/):** Before searching the live web, the agent generates a structured target schema of items and specific data fields. **The human operator reviews and refines this layout, learning the project's architecture early on.**
- 3. **Deep Investigation Loops (/research-deep):** Using OpenCode runtime tools, parallel agents deep-dive into each approved item one-by-one, filling out the data grid while the human watches the live telemetry.
- 4. **The Artifact Synthesis (report.md):** Compiles the granular findings into a single, comprehensive markdown document complete with source attributions for future human study.
-## ⚡ How This Differs From Standard "Deep Research"
-| Feature | Standard AI Deep Research | This Skill (OpenSpec + OpenCode) |
-|---|---|---|
-| **Human Role** | Passive consumer (just reads the final report). | Active co-learner (guides, reads, and grows mid-loop). |
-| **Execution** | Fully autonomous, unmonitored black box. | Strict, phased workflow with human-gated checkins. |
-| **Alignment** | AI guesses the research tree; can fall down rabbit holes. | Uses **OpenSpec Delta Specs** to approve the outline *before* execution. |
-| **Environment** | Runs entirely in the cloud on third-party servers. | Runs locally inside your OpenCode agent workspace. |
+### ⏱️ Detailed Phased Breakdown
+ 1. **Phase 1: Query Deconstruction & Intent Parsing** The skill ingests your initial research prompt, isolates core variables, identifies hidden knowledge gaps, and maps out the technical vocabulary required to search the topic effectively.
+ 2. **Phase 2: Strategy & Source Proposal (proposal.md)** Instead of searching blindly, the AI crafts a high-level research blueprint. It defines the target domains, search scopes, and investigation pathways it intends to pursue.
+ 3. **Phase 3: Schema & Outline Target Mapping (specs/)** The agent builds a structured target grid (rows, columns, and required data fields). **The skill halts execution here.** The human reviews, tweaks, and approves this layout—ensuring you understand the underlying architecture of your topic *before* data gathering starts.
+ 4. **Phase 4: Targeted Web Discovery & Knowledge Base Compilation (/knowledge-base/)** Once approved, parallel search agents deploy via your local OpenCode environment to index reference materials, documentation trees, and technical sources. All raw crawled findings are structured and safely saved into a local **Knowledge Base Folder** for absolute data ownership.
+ 5. **Phase 5: Notebook-Driven Data Analysis & Math (/notebooks/)** The gathered materials are parsed using fully transparent **Jupyter Notebooks (.ipynb)**. Using OpenCode runtimes, Python data scripts parse tables, extract metrics, and perform calculations. **Because it uses notebooks, you can inspect the code, track the calculation logic, and manually adjust the cells at any time.**
+ 6. **Phase 6: Artifact Synthesis & Website-Style Export (/output/index.html)** The final output is built as a beautifully structured, highly readable **website-style HTML document**. It can be opened directly in any web browser, presenting your deeply analyzed data, visual summaries, and complete source attributions in a production-ready interface.
 ## 🚀 How to Use & Install
 ### 1. Prerequisites (External Projects)
 This skill cannot run standalone; it requires functioning installations of **OpenCode** and **OpenSpec**.
@@ -94,7 +91,6 @@ Once your OpenCode environment is up and running, clone this repository and move
 git clone [https://github.com/alexleun/Human_in_the_loop_deep_reasearch_skill.git](https://github.com/alexleun/Human_in_the_loop_deep_reasearch_skill.git)
 
 # Move the skill folder to your local OpenCode skills directory
-# (Adjust the destination path depending on your specific OpenCode environment setup)
 mv Human_in_the_loop_deep_reasearch_skill/deep-research/ ~/.config/opencode/skills/
 
 ```
@@ -102,7 +98,7 @@ mv Human_in_the_loop_deep_reasearch_skill/deep-research/ ~/.config/opencode/skil
 After dropping the folder in, initialize your local agent workspace. The skill will automatically register via OpenSpec, allowing you to trigger the workflow through your configured OpenCode interface.
 ## 📁 Repository Structure
 This repository contains only the standalone skill package:
- * deep-research/ - The core skill logic, commands, and workflow schemas to be placed inside your local OpenCode skills folder.
+ * deep-research/ - The core skill logic, templates, commands, and workflow schemas to be placed inside your local OpenCode skills folder.
 ## 🛠️ Purpose & Motivation
 This project is created and maintained by an **independent developer**.
  * **Built for Learning:** This repository is a personal sandbox born entirely out of an interest to experiment with, explore, and master the mechanics of OpenCode and OpenSpec.
@@ -113,6 +109,3 @@ This project is an experimental trial and is shared publicly solely for educatio
 > 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
-```
-
-```
