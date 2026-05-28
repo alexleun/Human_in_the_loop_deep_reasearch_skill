@@ -1,6 +1,8 @@
-# Cross-Machine State Management
+# Cross-Machine State Management (Optional)
 
 Enables continuing work on a different computer via git + task state checkpoints.
+
+**Experience note:** In the HK research project, this was never needed because the same machine was used throughout. The human's presence in the conversation provided all context needed for resumption. Use this technique only when switching machines is expected — otherwise the overhead of maintaining `task_state.json` exceeds the benefit.
 
 ## The Problem
 

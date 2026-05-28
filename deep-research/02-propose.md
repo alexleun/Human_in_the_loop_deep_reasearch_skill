@@ -20,3 +20,6 @@ Created via `/opsx-propose`:
 - What output languages are needed?
 - What visual assets are needed? (maps, charts, diagrams)
 - What would cause conclusions to change?
+- **What data-source IDs will findings carry?** Specify in the proposal, not retrofitted in Phase 7. Each finding should be pre-assigned a source ID so that `data-source` attributes are written during Phase 5, not added after.
+- **What confidence levels apply?** Define the threshold for HIGH/MEDIUM/LOW per dimension — prevents inconsistency across reports.
+- **What verification points are needed?** For quantitative research, specify which CSV values will be cross-checked against authoritative sources.

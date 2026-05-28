@@ -71,22 +71,35 @@ For any quantitative task: **output code, not numbers.** The LLM writes Python t
 
 When the output spec offers multiple formats (JSON vs Python, HTML vs Markdown), the LLM must pick **one** per block. Mixing formats in the same block causes decoding errors.
 
-### 5. Review Manifest
+### 5. Citation-First (Not Retrofitted)
 
-After each step, produce a structured review checkpoint:
+Source citations must be embedded from Phase 2, not added in Phase 7 review. Every change proposal must specify the `data-source` IDs and confidence levels that findings will carry. This prevents the retrofitting pain experienced when adding `data-source` attributes to every claim block after all reports were written — a process that required 5+ scripts and multiple parity fixes.
 
-```yaml
-# STEP_REVIEW_MANIFEST
-summary: "One-line summary of what this step accomplished"
-evidence_chain:
-  - "Claim A -> source reference (exact quote)"
-  - "Claim B -> source reference"
-data_gaps:
-  - "What the source material could not confirm"
-next_action: "Suggested next step"
-```
+### 6. Encoding Awareness (for CJK Content)
 
-The human reviews this manifest (not the full output) to decide whether to continue.
+When generating Chinese/Japanese/Korean content on Windows systems, PowerShell encoding behavior corrupts files:
+- `>` and `|` operators use the system code page, not UTF-8
+- U+FFFD replacement characters appear when UTF-8 bytes are decoded as Windows-1252
+- Fix: Always use Python `open(path, "w", encoding="utf-8")` or .NET `[System.IO.File]::WriteAllText()`
+- Verify: After writing a ZH file, re-read it and check for `\uFFFD` characters
+
+### 7. Bilateral Parity Verification
+
+"Bilingual parity" is not a one-time goal — it requires automated verification at each phase boundary. For every EN file, the corresponding ZH file must pass:
+- Same count of `<div class="finding">` blocks
+- Same count of `data-source` attributes
+- Same count of `data-confidence` attributes
+- No `\uFFFD` encoding errors
+- Consistent nav labels across all files in the language
+
+### 8. Review Manifest (Optional, Phase-Dependent)
+
+When the task is complex or the human needs a checkpoint:
+- Use a short text summary (3-5 bullets), not a YAML block
+- Include: what was done, how many sources/claims were processed, what gaps remain
+- Skip when the human is actively guiding — the conversation log serves as the manifest
+
+**Experience note:** In practice, the Review Manifest was never used during the HK research project. The human-in-the-loop workflow naturally provides checkpointing through conversation. Reserve manifests for fully autonomous sub-agent tasks.
 
 ---
 
@@ -129,7 +142,8 @@ Load the sub-file matching your current task:
 - **Propose before implementing** — no data collection without a proposal
 - **Log every source** — local copy in `knowledge-base/sources/` for fact-checking
 - **Never silently fix** — surface methodological issues before fixing
-- **Bilingual parity** — both languages must have same content and quality
-- **Commit + push after every task** — enables machine switching
+- **Bilingual parity** — both languages must have same content and quality; verify with automated script, not manually
+- **Verify encoding after generation** — especially CJK content on Windows; check for U+FFFD before considering a file complete
 - **Don't delete old versions** — use `_v1`, `_v2` suffixes
 - **Flag uncertainty** — distinguish facts, claims, hypotheses
+- **Verify CSVs against authoritative sources** — do not assume web-scraped or LLM-generated data is correct; cross-check key numbers

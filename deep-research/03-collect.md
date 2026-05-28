@@ -19,9 +19,29 @@
 ## 3b. Data Pipeline (if quantitative)
 
 - Fetch from authoritative APIs; validate temporal coverage, outliers, schema
-- Store raw data (unaltered) in `analysis/data/raw/`
-- Store processed data in `analysis/data/` with provenance README
+- Store raw data (unaltered) in `project/data/raw/`
+- Store processed data in `project/data/` with provenance README
 - **Code-first**: write Python scripts for all transforms, not manual steps
+
+## 3c. Data Verification (Critical — Learned from Practice)
+
+Web-scraped and LLM-generated CSV data frequently contains errors. After initial collection:
+
+1. **Extract key inflection points**: For every CSV, identify 3-5 critical data points (e.g., most recent year, historical peak, trough, key ratio)
+2. **Cross-verify against authoritative sources**: Fetch each key point from the original gov't/agency publication and confirm the CSV value matches
+3. **Create a correction log**: For each discrepancy found, document in `project/data/verification_log.md`:
+   ```
+   ## CSV: population.csv
+   - **Error**: 2025 end-year population was 7,503,000 (wrong) vs 7,510,800 (correct)
+   - **Source**: C&SD Year-end Population for 2025 (2026-02-12)
+   - **Fix**: Updated cell B26 in population.csv
+   - **Propagation**: Re-ran generate_all_figures.py after fix
+   ```
+4. **Propagate corrections**: A single CSV fix may affect multiple figures and report claims. After fixing a CSV:
+   - Re-run all figure generation scripts
+   - Re-check any report text that references the corrected value
+   - Flag "pre-correction" and "post-correction" values in the methodology page
+5. **Track figure impact**: If figure axes or titles reference specific values, update them too
 
 ## 3c. Knowledge Base
 
