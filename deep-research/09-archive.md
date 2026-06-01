@@ -1,25 +1,34 @@
-# Phase 9: Final Report & Archive
+# Phase 9: Archive
 
-**Who drives:** LLM (produces), Human (approves)
+**Who drives:** LLM (prepares), Human (approves)
 
-**Purpose:** Publish results and close the change. Knowledge becomes foundation for future iterations.
+**Purpose:** Close the change and preserve research output for future work.
 
-## Deliverables Checklist
+## Pre-Archive Checklist
 
-- [ ] Research document: `output/<topic>.md`
-- [ ] Bilingual website: all pages in both languages
-- [ ] SVG map / diagram (if applicable)
-- [ ] All figures in `output/figures/`
-- [ ] All datasets exported to `output/data/` (CSV + parquet)
-- [ ] Knowledge base updated with cross-references
-- [ ] Timeline updated with new events
-- [ ] Executive briefing: `output/web/executive-briefing.md`
-- [ ] All source documents in `knowledge-base/sources/`
-- [ ] `sources_index.md` complete
+Before archiving, confirm:
 
-## Archive
+- [ ] All tasks in the change are marked complete
+- [ ] All artifacts are marked `done` in `openspec status --json`
+- [ ] All code (scripts, notebooks) has been run and produces zero errors
+- [ ] Last parity verification passed (if bilingual output exists)
+- [ ] Knowledge base sources are cached in `knowledge-base/sources/`
+- [ ] Source index (`sources_index.md`) is complete
+- [ ] Research outputs are seeded into knowledge graph (if applicable)
 
-Run `/opsx-archive` to close the change.
+**If any items are incomplete:** Flag to the human. The archive can proceed with warnings if the human confirms.
+
+## Archive Mechanism
+
+Run `/opsx-archive` to invoke the openspec archive skill. This will:
+
+1. Verify artifact and task completion
+2. Assess delta spec sync state (compare change specs against main specs)
+3. Prompt you for sync decisions if delta specs exist
+4. Move the change directory to `openspec/changes/archive/YYYY-MM-DD-<name>/`
+5. Display a completion summary
+
+**Important:** Phase 9 of this skill and the `/opsx-archive` command are the **same thing**. The deep-research skill's Phase 9 prepares the context; `/opsx-archive` executes the move. Use them together, not separately.
 
 ## The Archive Is Not Dead Storage
 

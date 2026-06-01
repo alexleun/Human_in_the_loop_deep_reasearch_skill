@@ -50,6 +50,19 @@ Web-scraped and LLM-generated CSV data frequently contains errors. After initial
 - Distinguish: **facts** (multi-source confirmed), **claims** (single source), **hypotheses** (analysis), **contested** (sources disagree)
 - Update `knowledge-base/timeline.md` with new events
 
+## When to Spin Off a Separate Change
+
+The knowledge base can grow beyond a single change's scope. Watch for:
+
+| Signal | Example from global-heatwave | Action |
+|--------|------|--------|
+| Facts exceed ~20 items | 22 fact cards across 8 chapters | Separate: KB content in one change, website pages in another |
+| Multiple output formats | Markdown fact cards + HTML chapter pages | Each format is a distinct change with its own verification |
+| Downstream depends on upstream | Chapter page layout depends on fact card schema | Make upstream change first, spin off downstream after |
+| Different verification strategies | KB needs YAML frontmatter validation; pages need HTML parity | Each change gets its own purpose-built verification script |
+
+**Practical heuristic:** If you're writing fact cards and thinking "these will eventually become web pages", stop. Finish the fact cards in the current change. Create a new change for the web pages. The two changes can reference each other in their design docs.
+
 ## Review Manifest
 
 After each collection batch, produce:

@@ -30,6 +30,14 @@ Never mix both in the same block.
 - Consistent naming, date formats, color palettes
 - Utility functions centralized in `analysis/scripts/`
 
+## Validation Run
+
+After generating any script, notebook, or application code, **execute it and confirm zero errors** before marking the analysis complete. If the code produces runtime errors, fix them in the same phase — do not defer to a later phase.
+
+- For Python scripts: run with `python script.py` and check exit code
+- For notebooks: execute all cells and confirm no exceptions
+- For dashboards/apps: start the server and verify the landing page loads
+
 ## Review Manifest
 
 ```yaml
@@ -40,4 +48,5 @@ key_figures: ["figure_1.png", "figure_2.png"]
 data_gaps:
   - "Any limitations in the data discovered during analysis"
 next_action: "Interpret results or run next analysis"
+validation: "Script ran without errors"  # or list issues found
 ```

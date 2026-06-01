@@ -3,7 +3,7 @@ name: deep-research
 description: Deep research workflow with human guidance. Topic-agnostic. For detailed phase instructions, load the corresponding sub-file from this directory.
 license: MIT
 metadata:
-  version: "4.0"
+  version: "4.1"
   files:
     - "01-explore.md"
     - "02-propose.md"
@@ -14,6 +14,7 @@ metadata:
     - "07-review.md"
     - "08-iterate.md"
     - "09-archive.md"
+    - "10-implement.md"
     - "state-management.md"
 ---
 
@@ -34,10 +35,35 @@ A modular skill for structured deep research in collaboration with a human. Work
        │   ┌──────────────────────────┘                 │
        │   │   ┌────────────────────────────────────────┘
        ▼   ▼   ▼
-    ┌──────────────────────────────────────────────────────┐
-    │                    ITERATE                            │
-    └──────────────────────────────────────────────────────┘
+     ┌──────────────────────────────────────────────────────┐
+     │                    ITERATE                            │
+     └──────────────────────────────────────────────────────┘
+       │                              ▲
+       │   (scope grows beyond)       │   (issues found,
+       ▼                              │    loop back)
+     ┌──────────────────────────────────────────────────────┐
+     │              OPESPEC CHANGES (follow-on)              │
+     │  Branch research output into independently tracked   │
+     │  changes: data pipeline, knowledge base, web pages   │
+     └──────────────────────────────────────────────────────┘
 ```
+
+**Phase revisiting is normal.** Real research is not linear. You will discover encoding corruption during Phase 6 and need to fix Phase 5 output. You will spot structural issues during review (Phase 7) and need to regenerate Phase 6 pages. This is expected — do not feel pressure to complete each phase in one pass.
+
+**When to loop back:**
+- **Phase 6 → Phase 5:** If web output reveals that the report structure (cards vs prose, section ordering) isn't working, update the report design in Phase 5 before regenerating pages.
+- **Phase 7 → Phase 5/6:** Review audit findings, fix at the source (Phase 5 for content, Phase 6 for rendering), then regenerate.
+- **Phase 8 → Phase 3/4:** Iteration discovered a new pattern needing data collection/analysis — cycle back before updating the narrative.
+- **Any phase → Phase 1:** If the scope has fundamentally changed (new topic, new research question), restart from exploration.
+
+**How to loop back:**
+1. State which phase you're revisiting and why
+2. Load that phase's sub-file
+3. Make the fix
+4. Re-verify downstream phases (e.g., if you changed Phase 5 content, re-run Phase 6 parity checks)
+5. Do NOT mark the earlier phase as "incomplete" — it was valid at the time; the iteration creates a new version
+
+**Experience note from global-heatwave project:** The research naturally spawned 3 follow-on openspec changes (database-notebook, knowledge-base, website-chapters). Each had independent tasks and lifecycle but shared the same source data and design decisions. This is the expected pattern when research depth exceeds what a single change can contain.
 
 ---
 
@@ -101,6 +127,43 @@ When the task is complex or the human needs a checkpoint:
 
 **Experience note:** In practice, the Review Manifest was never used during the HK research project. The human-in-the-loop workflow naturally provides checkpointing through conversation. Reserve manifests for fully autonomous sub-agent tasks.
 
+### 9. Schema-as-Source-of-Truth
+
+When research involves a database schema (SQLAlchemy, Django ORM, etc.), model files are the **single source of truth**. Migrations are derived from models, never hand-written or manually edited. Before any code that reads or writes the database, verify that field/column names in consuming code match the model definitions exactly — use `model.__table__.columns.keys()` or equivalent introspection to catch mismatches early.
+
+- Good: "Run `python -c 'from app.models import Model; print([c.name for c in Model.__table__.columns])'` and confirm column names in your query match."
+- Bad: "I think the column is called `city`" — then writing SQL with `city` when the model uses `city_name`.
+
+### 10. Graceful Degradation (Fallback Consciousness)
+
+Any interactive system consuming research data (dashboards, APIs, reports) must handle the case where data stores are empty, unreachable, or still being populated. Implement fallback states with representative sample data so the system is always demonstrable. This prevents "works on my machine" syndrome and ensures stakeholders can see the interface regardless of data pipeline status.
+
+- At proposal time (Phase 2), define fallback strategy: what sample data will be used, how will the user know they're seeing fallback vs live data
+- At implementation, separate data-fetching from rendering so each path can be tested independently
+- Mark fallback data clearly so it's not mistaken for real findings
+
+### 11. Change Boundary Detection (When to Spin Off)
+
+One change cannot contain infinite depth. The global-heatwave project demonstrated that research outputs naturally expand into multiple distinct work streams. Detecting when a single change has reached its limits — and when to spin off a new one — is a critical skill.
+
+**Signals that a scope boundary has been reached:**
+
+| Signal | Example | Action |
+|--------|---------|--------|
+| Tasks exceeding 15-20 total items | 39 tasks in extend-knowledge-base | Spin off the next layer (e.g., web pages for chapter content became a separate change) |
+| Multiple independent output types | Knowledge base (fact cards) + website (chapter pages) | Split by output type: KB content in one change, website rendering in another |
+| Different verification needs | Data pipeline needs CSV cross-checks; web output needs bilingual parity | Split so each change has its own verification script suited to its artifact type |
+| Parallelizable work streams | KB chapter writing (content) vs website nav update (templating) | Spin off so each stream can proceed independently |
+| Design decisions that affect downstream | KB fact card schema determines chapter page layout | Make the upstream change first (KB schema), then spin off the downstream (website) with the schema as a dependency |
+
+**How to spin off:**
+1. Complete current change's primary artifact (e.g., all fact cards written and validated)
+2. Create a new change via `/opsx-propose` with its own proposal, design, specs, tasks
+3. Reference the upstream change's artifacts and decisions in the new change's design.md
+4. Archive the upstream change only after the downstream is complete (or in parallel if they're truly independent)
+
+**Heuristic:** If a single task description runs over 2 lines or mixes two types of work (e.g., "Create fact cards AND generate chapter HTML"), it's already past the boundary. Split before writing the task.
+
 ---
 
 ## Phase Router
@@ -118,7 +181,54 @@ Load the sub-file matching your current task:
 | Auditing for methodological weaknesses | `07-review.md` |
 | Developing new point of view, reframing | `08-iterate.md` |
 | Finalizing deliverables, archiving the change | `09-archive.md` |
+| Building application from research (bridge phase) | `10-implement.md` |
 | Switching machines, resuming interrupted work | `state-management.md` |
+| Transitioning research output into an openspec implementation change | See "Post-Research → openspec Bridge" below |
+
+## Post-Research → openspec Bridge
+
+Research output (facts, findings, data sources, design decisions) often needs to be implemented as structured artifacts. This bridge connects deep-research output to openspec changes.
+
+### When to Bridge
+
+- Research has produced findings that need to be rendered as a bilingual website → create a new openspec change for web output
+- Source documents have been collected and need a structured knowledge base → create a new openspec change for KB
+- Analysis scripts need to be productionized as notebooks or dashboards → create a new openspec change for tooling
+
+### What to Carry Forward
+
+When creating an openspec change from research output, copy forward:
+
+| From deep-research | To openspec change |
+|---|---|
+| Source index (`knowledge_base/sources/sources_index.md`) | `design.md` — data sources section |
+| Fact cards / findings | `specs/<capability>/spec.md` — requirements per capability |
+| Design decisions from research | `design.md` — architecture decisions |
+| Verification scripts from research | `tasks.md` — adaptation/porting of scripts |
+| Bilingual parity patterns | Parity verification tasks in the new change |
+
+### What NOT to Carry Forward
+
+- Do NOT copy raw source documents — link to them from `knowledge_base/sources/`
+- Do NOT copy the research proposal — create a fresh proposal scoped to the implementation
+- Do NOT re-debate design decisions already made in research — reference them as settled
+
+### Example (from global-heatwave project)
+
+```
+Research output (deep-research skill)
+    │
+    ├──→ openspec: extend-database-notebook
+    │     Source cache, analysis notebooks, bilingual output, parity checker
+    │
+    ├──→ openspec: extend-knowledge-base
+    │     8-chapter fact cards, validator, knowledge graph entities
+    │
+    └──→ openspec: extend-website-chapters
+          8 chapter pages, KB index page, nav update, parity checker update
+```
+
+Each openspec change added a new layer of value on top of the same research base, with independent task tracking and verification gates.
 
 ---
 
@@ -147,3 +257,5 @@ Load the sub-file matching your current task:
 - **Don't delete old versions** — use `_v1`, `_v2` suffixes
 - **Flag uncertainty** — distinguish facts, claims, hypotheses
 - **Verify CSVs against authoritative sources** — do not assume web-scraped or LLM-generated data is correct; cross-check key numbers
+- **Validate code by running it** — after generating any runnable code (scripts, dashboards, tests), execute it and verify zero errors before marking the phase complete
+- **Seed before archiving** — research outputs must be seeded into the target database/knowledge graph before the change is archived; document seed scripts in the repository

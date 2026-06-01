@@ -35,9 +35,19 @@ Unanswered questions, what new data would help, out-of-scope items.
 Every source cited with exact quote references. Cross-reference to sources_index.md.
 ```
 
-## Output Specification
+## Output Structure: Cards vs Prose
 
-Reports are generated as **complete HTML pages** within the `project/web/` site. Each finding uses this structure within the report:
+**Do NOT default to card format.** Choose the output structure based on where the content appears:
+
+| Context | Recommended Format | Rationale |
+|---|---|---|
+| **Standalone chapter page** (e.g., `chapters/health/index.html`) | Card: `<div class="finding">` with claim/evidence/analysis divs | Each finding is self-contained; readers may jump between sections |
+| **Executive Summary** in a report page | Prose: flowing `<p>` with inline citations and badges | Cards break the narrative flow; a summary should read as one paragraph |
+| **Knowledge-base index page** with embedded chapter content | Prose: each chapter rendered as a `<h3>` heading followed by flowing `<p>` | Readers scan vertically; cards create visual noise at this density |
+| **Integrated analysis** where findings build on each other | Prose: sequential paragraphs with transition sentences | Cards isolate findings that need to be read as a cumulative argument |
+| **Data gap deep-dive** with Known/Gaps structure | Cards OK, but merge Known+Gaps into the analysis paragraph | The two halves (known, gaps) are read together |
+
+### Card Format (for standalone chapter pages)
 
 ```html
 <div class="finding" data-confidence="HIGH|MEDIUM|LOW" data-source="SOURCE-ID">
@@ -54,11 +64,26 @@ Reports are generated as **complete HTML pages** within the `project/web/` site.
 </div>
 ```
 
-### Attribute Rules
+### Prose Format (for summaries, integrated pages, knowledge-base)
 
-- **`data-confidence`**: Required on every finding div. Values: `HIGH` (multiple independent sources), `MEDIUM` (single source or indirect), `LOW` (extrapolation or limited evidence).
-- **`data-source`**: Required on every finding div. Space-separated list of source IDs from `sources_index.md`. Do NOT retrofit after writing — specify citations when drafting each finding.
-- **Confidence badge**: Each finding must end with a visible `<span class="confidence-badge">` matching its `data-confidence`.
+```html
+<h3>Finding Title</h3>
+<p>The core claim, stated directly, with the supporting quote integrated inline: "Exact quoted text" (Source, Date). The analysis continues as part of the same paragraph flow. <strong>Data Gap:</strong> Description of gap. <span class="confidence-badge confidence-HIGH" data-tip="...">HIGH</span></p>
+```
+
+Rules for prose format:
+- Merge claim + evidence quote + analysis into 1-2 `<p>` tags per finding
+- Keep the quote in quotation marks with attribution in parentheses
+- Keep `<strong>Data Gap:</strong>` inline within the paragraph (not a separate `<p>`)
+- Confidence badge goes at the end of the paragraph
+- Do NOT use `<div class="finding">`, `<div class="claim">`, `<div class="evidence">`, or `<div class="analysis">` wrappers — they add no value in prose mode and complicate responsive layout
+- Transition paragraphs (`<p class="transition">`) between findings maintain narrative flow in prose mode
+
+### Attribute Rules (apply to both formats)
+
+- **`data-confidence`**: Required on every finding. Values: `HIGH` (multiple independent sources), `MEDIUM` (single source or indirect), `LOW` (extrapolation or limited evidence). Use a single attribute — do NOT duplicate as both `data-confidence` and `confidence`.
+- **`data-source`**: Required on every finding div (card format) or optional but recommended in prose format (reference source in the attribution).
+- **Confidence badge**: Each finding must have a visible `<span class="confidence-badge">` matching its confidence level.
 - These attributes enable the bilingual parity verification script (`final_verify.py`) to detect missing citations.
 
 ### Structural Rules
@@ -67,6 +92,7 @@ Reports are generated as **complete HTML pages** within the `project/web/` site.
 - No scripts (`<script>`)
 - Every finding needs a unique `data-source` (can share IDs across findings)
 - The `<h3>` title should match across EN/ZH versions for structural parity
+- **Attribute consistency**: After writing, scan for `confidence="` (without `data-` prefix) — this is a common typo that silently breaks parity checks. Use a single attribute name.
 
 ## Writing Principles
 
@@ -86,6 +112,10 @@ Reports are generated as **complete HTML pages** within the `project/web/` site.
 | Event impacts | Before/after bars | `project/web/images/` |
 | Comparisons | Grouped bars / radar | `project/web/images/` |
 | Phases | Colored cards / timeline | Inline or SVG |
+
+## Fallback Consciousness in Reports
+
+If the report describes a system that consumes data (dashboard, API, interactive map), include a **fallback state** description: what the system shows when the data store is empty, and how the user distinguishes fallback from live data. This is especially important for executive demos where the data pipeline may not be fully populated.
 
 ## Cross-Phase Integration
 
